@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Anniversaire 🎉</title>
+
+  <style>
+
+    /* REMPLACE TOUT LE CSS PAR CELUI-CI */
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+      overflow:hidden;
+      position:relative;
+
+      background:
+        linear-gradient(
+          135deg,
+          #141e30 0%,
+          #243b55 40%,
+          #1d2671 100%
+        );
+    }
+
+    /* halos doux */
+
+    body::before,
+    body::after{
+      content:"";
+      position:absolute;
+      width:500px;
+      height:500px;
+      border-radius:50%;
+      filter:blur(120px);
+      opacity:0.18;
+      z-index:-1;
+      animation: float 12s infinite alternate ease-in-out;
+    }
+
+    body::before{
+      background:#6c63ff;
+      top:-150px;
+      left:-120px;
+    }
+
+    body::after{
+      background:#4cc9f0;
+      bottom:-150px;
+      right:-120px;
+    }
+
+    /* étoiles discrètes */
+
+    .stars{
+      position:absolute;
+      width:100%;
+      height:100%;
+      top:0;
+      left:0;
+      overflow:hidden;
+      z-index:-1;
+    }
+
+    .stars span{
+      position:absolute;
+      width:2px;
+      height:2px;
+      background:rgba(255,255,255,0.5);
+      border-radius:50%;
+      animation: twinkle 4s infinite;
+    }
+
+    /* carte principale */
+
+    .container{
+      background:rgba(15,20,35,0.75);
+
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+
+      width:100%;
+      max-width:700px;
+
+      padding:40px;
+
+      border-radius:28px;
+
+      border:1px solid rgba(255,255,255,0.08);
+
+      box-shadow:
+        0 10px 40px rgba(0,0,0,0.35);
+
+      text-align:center;
+
+      animation: fadeIn 0.6s ease;
+    }
+
+    /* titre */
+
+    h1{
+      margin-bottom:20px;
+      color:#f5f7ff;
+      font-size:2.1rem;
+      font-weight:600;
+      letter-spacing:1px;
+    }
+
+    /* question */
+
+    .question{
+      font-size:1.4rem;
+      margin-bottom:30px;
+      color:#dfe7ff;
+      line-height:1.6;
+    }
+
+    /* réponses */
+
+    .answers{
+      display:flex;
+      flex-direction:column;
+      gap:15px;
+    }
+
+    button{
+      padding:16px;
+
+      border:none;
+      border-radius:16px;
+
+      cursor:pointer;
+
+      font-size:1rem;
+
+      background:
+        rgba(255,255,255,0.06);
+
+      color:#f5f7ff;
+
+      transition:0.25s ease;
+
+      border:1px solid rgba(255,255,255,0.05);
+    }
+
+    button:hover{
+      transform:translateY(-2px);
+
+      background:
+        rgba(255,255,255,0.12);
+    }
+
+    /* messages */
+
+    .message{
+      margin-top:25px;
+      font-size:1.05rem;
+      min-height:30px;
+      color:#dfe7ff;
+    }
+
+    .success{
+      color:#8ff0b5;
+      font-weight:bold;
+    }
+
+    .error{
+      color:#ffb4b4;
+      font-weight:bold;
+    }
+
+    /* fin */
+
+    .final-message{
+      animation: fadeIn 1s ease;
+      color:#f5f7ff;
+    }
+
+    .heart{
+      font-size:3.5rem;
+      margin-bottom:20px;
+      animation:pulse 1.5s infinite;
+    }
+
+    /* animations */
+
+    @keyframes pulse{
+      0%{
+        transform:scale(1);
+      }
+
+      50%{
+        transform:scale(1.08);
+      }
+
+      100%{
+        transform:scale(1);
+      }
+    }
+
+    @keyframes float{
+      from{
+        transform:translateY(0px);
+      }
+
+      to{
+        transform:translateY(40px);
+      }
+    }
+
+    @keyframes twinkle{
+      0%{
+        opacity:0.2;
+      }
+
+      50%{
+        opacity:0.8;
+      }
+
+      100%{
+        opacity:0.2;
+      }
+    }
+
+    @keyframes fadeIn{
+      from{
+        opacity:0;
+        transform:translateY(20px);
+      }
+
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Étoiles -->
+  <div class="stars">
+    <span style="top:10%; left:20%;"></span>
+    <span style="top:30%; left:80%;"></span>
+    <span style="top:70%; left:10%;"></span>
+    <span style="top:50%; left:50%;"></span>
+    <span style="top:80%; left:70%;"></span>
+    <span style="top:20%; left:60%;"></span>
+    <span style="top:60%; left:30%;"></span>
+    <span style="top:40%; left:15%;"></span>
+    <span style="top:15%; left:90%;"></span>
+    <span style="top:75%; left:45%;"></span>
+  </div>
+
+  <div class="container">
+
+    <h1>✨ Quiz Céleste ✨</h1>
+
+    <div id="quiz">
+
+      <div class="question" id="question"></div>
+
+      <div class="answers" id="answers"></div>
+
+      <div class="message" id="message"></div>
+
+    </div>
+
+  </div>
+
+<script>
+
+const quizData = [
+
+  {
+    question: "La seule personne à t'appeler AZUCAR ",
+    answers: [
+      "Henriette",
+      "Sylvère",
+      "Jordan",
+      "Sagesse"
+    ],
+    correct: 2,
+    success: "Ah bah bien-sûr mon sucre ❤️",
+    fail: "Nope 😭 essaie encore"
+  },
+
+  {
+    question: "Je t'appelle souvent ma copine des soirées",
+    answers: [
+      "Jordan",
+      "Yusuf",
+      "Evrad",
+      "Sylvère"
+    ],
+    correct: 3,
+    success: "Exactement 😭❤️",
+    fail: "Mmmmmh non 😂"
+  },
+
+  {
+    question: "Je suis ta cousine preferée ",
+    answers: [
+      "Carele",
+      "Rebecca",
+      "Imma",
+      "Sagesse"
+    ],
+    correct: 3,
+    success: "Si c'est pas moi c'est qui ?",
+    fail: "Donc tu as une autre couz préférée hein, réessaie"
+  },
+  {
+    question: "Je conserve toujours ta lettre et ton portefeuille avec moi ",
+    answers: [
+      "Emmanuel",
+      "Yusuf",
+      "Evrad",
+      "Jordan"
+    ],
+    correct: 2,
+    success: "OUIIIII",
+    fail: "Raté 😭 mais tu peux recommencer"
+  },
+  {
+    question: "Je suis ta cousine sans être ta cousine ",
+    answers: [
+      "Lys",
+      "Imma",
+      "Rebecca",
+      "Henriette"
+    ],
+    correct: 0,
+    success: "OUIIIII 🎶❤️",
+    fail: "Raté 😭 mais tu peux recommencer"
+  },
+  {
+    question: "Quel duo représente la folie en personne ?",
+    answers: [
+      "Emmanuel & Evrad",
+      "Yusuf & Jordan",
+      "Emmanuel & Sylvère",
+      "Sylvère & Jordan"
+    ],
+    correct: 3,
+    success: "Folie na ngai tu connais",
+    fail: "Raté 😭 mais tu peux recommencer"
+  },
+  {
+    question: "Ta bestie du business",
+    answers: [
+      "Carele",
+      "Imma",
+      "Carola",
+      "Lys"
+    ],
+    correct: 1,
+    success: "Ok pour le business guuuurl 😂❤️",
+    fail: "Raté 😭 mais tu peux recommencer"
+  },
+  {
+    question: "On a fait le tour du Canada ensemble alias Dora & Babouche",
+    answers: [
+      "Emmanuel",
+      "Wekam",
+      "Rebecca",
+      "Sagesse"
+    ],
+    correct: 2,
+    success: "On a galéré hein copine 😂❤️",
+    fail: "Raté 😭 mais tu peux recommencer"
+  },
+  {
+    question: "Ta petite maman ?",
+    answers: [
+      "Henriette",
+      "Jordan",
+      "Sylvère",
+      "Evrad"
+    ],
+    correct: 0,
+    success: "Oui ma fille ❤️",
+    fail: "Raté 😭 "
+  },
+  {
+    question: "Est-ce que tu es prête pour la surprise ?",
+    answers: [
+      "Oui",
+      "oUi",
+      "ouiiiii",
+      "Ooh Yess Damn"
+    ],
+    correct:3,
+    success: "Oh yeah 😂❤️",
+    fail: "Raté 😭 "
+  }
+
+];
+
+let currentQuestion = 0;
+
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const messageEl = document.getElementById("message");
+const quizEl = document.getElementById("quiz");
+
+function loadQuestion(){
+
+  const current = quizData[currentQuestion];
+
+  questionEl.innerText = current.question;
+
+  answersEl.innerHTML = "";
+  messageEl.innerHTML = "";
+
+  current.answers.forEach((answer, index) => {
+
+    const btn = document.createElement("button");
+
+    btn.innerText = answer;
+
+    btn.onclick = () => checkAnswer(index);
+
+    answersEl.appendChild(btn);
+
+  });
+}
+
+function checkAnswer(index){
+
+  const current = quizData[currentQuestion];
+
+  if(index === current.correct){
+
+    messageEl.innerHTML =
+      `<span class="success">${current.success}</span>`;
+
+    setTimeout(() => {
+
+      currentQuestion++;
+
+      if(currentQuestion < quizData.length){
+        loadQuestion();
+      }
+      else{
+        showFinalMessage();
+      }
+
+    }, 1200);
+
+  }
+  else{
+
+    messageEl.innerHTML =
+      `<span class="error">${current.fail}</span>`;
+
+  }
+}
+
+function showFinalMessage(){
+
+  quizEl.innerHTML = `
+
+    <div class="final-message">
+
+      <div class="heart">❤️</div>
+
+
+      <p style="
+        font-size:1.2rem;
+        margin-top:25px;
+        line-height:1.8;
+        color:#dfe7ff;
+      ">
+
+        Félicitations 🎉<br><br> 
+        On a recueilli quelques textes 
+        et souvenirs pour toi 💌
+
+      </p>
+      <button>
+      <a
+        href="cadeau.pdf"
+        target="_blank"
+        download
+        
+        style="
+          margin-top:35px;
+          padding:18px;
+          width:100%;
+          border-radius:18px;
+          font-size:1rem;
+          text-decoration:none;
+          text-align:center;
+
+          background:#rgba(255,255,255,0.08);
+          color:white;
+          
+          transition:0.3s;
+        "
+      >
+        Télécharge le document ci ma youyou
+      </button>
+
+    </div>
+
+  `;
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
